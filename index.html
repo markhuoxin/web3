@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>利息宝</title>
+    <style>
+        /* 基础样式重置 */
+        body, h1, p, ul { margin: 0; padding: 0; }
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding-bottom: 20px;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .header .icon { width: 20px; height: 20px; }
+
+        /* Banner 区域 */
+        .banner {
+            margin: 0 15px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+        .banner-title {
+            color: #fff;
+            font-size: 24px;
+            font-style: italic;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0,150,255,0.8);
+        }
+        .banner-subtitle {
+            font-size: 12px;
+            color: #ffd700;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .car-img { width: 60%; margin-top: 10px; }
+
+        /* 资产信息区域 */
+        .asset-card {
+            padding: 25px 15px;
+        }
+        .asset-label {
+            color: #888;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .transfer-link { color: #d4af37; text-decoration: none; }
+        
+        .asset-main {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .asset-main span { font-size: 14px; color: #888; font-weight: normal; }
+
+        .stats-row {
+            display: flex;
+            margin-top: 25px;
+            justify-content: space-between;
+        }
+        .stat-item { flex: 1; }
+        .stat-label { color: #888; font-size: 14px; margin-bottom: 8px; }
+        .stat-value { font-size: 22px; font-weight: bold; }
+        .rate-value { font-size: 22px; font-weight: bold; }
+
+        /* 按钮 */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 18px;
+            background: transparent;
+            cursor: pointer;
+        }
+        .btn-out { border: 1px solid #d4af37; color: #d4af37; }
+        .btn-in { border: 1px solid #d4af37; background: transparent; color: #d4af37; }
+
+        /* 常见问题列表 */
+        .faq-section {
+            margin-top: 40px;
+            padding: 0 15px;
+        }
+        .faq-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .faq-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+            border-bottom: 1px solid #222;
+            color: #ccc;
+            font-size: 16px;
+        }
+        .faq-item::after {
+            content: "〉";
+            color: #444;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <span>〈</span>
+        <span>利息宝</span>
+        <div style="display: flex; gap: 10px;">
+            <span>🔔</span>
+            <span>💬</span>
+        </div>
+    </div>
+
+    <div class="banner">
+        <span class="banner-subtitle">资深玩家首选 超高收益 即存即赚</span>
+        <div class="banner-title">独家过夜利息</div>
+        <div style="color: #fff; font-size: 10px; margin-top: 5px;">EXCLUSIVE OVERNIGHT INTEREST</div>
+        <div style="background: #ff4500; height: 40px; width: 100px; margin: 10px auto; border-radius: 5px; line-height: 40px;">CAR IMG</div>
+    </div>
+
+    <div class="asset-card">
+        <div class="asset-label">
+            总资产
+            <a href="#" class="transfer-link">转账记录 〉</a>
+        </div>
+        <div class="asset-main">
+            67,256.95 <small style="font-size: 16px;">USDT</small>
+            <span>≈467,435 CNY</span>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-label">累计收益</div>
+                <div class="stat-value">3,290.95</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">年利率</div>
+                <div class="rate-value">15%-36%</div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <div class="btn btn-out">转出</div>
+            <div class="btn btn-in">转入</div>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-title">常见问题</div>
+        <div class="faq-item">过夜利息基本规则？</div>
+        <div class="faq-item">如何转入资金？</div>
+        <div class="faq-item">如何转出资金？</div>
+        <div class="faq-item">多久才能有收益？</div>
+        <div class="faq-item">存入时间有限制吗？</div>
+    </div>
+
+</body>
+</html>
