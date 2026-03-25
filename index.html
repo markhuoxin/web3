@@ -2,182 +2,191 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>利息宝</title>
     <style>
-        /* 基础样式重置 */
-        body, h1, p, ul { margin: 0; padding: 0; }
-        body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            padding-bottom: 20px;
-        }
-
-        /* 顶部导航栏 */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .header .icon { width: 20px; height: 20px; }
-
-        /* Banner 区域 */
-        .banner {
-            margin: 0 15px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid #333;
-        }
-        .banner-title {
-            color: #fff;
-            font-size: 24px;
-            font-style: italic;
-            font-weight: 900;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(0,150,255,0.8);
-        }
-        .banner-subtitle {
-            font-size: 12px;
-            color: #ffd700;
-            margin-bottom: 5px;
-            display: block;
-        }
-        .car-img { width: 60%; margin-top: 10px; }
-
-        /* 资产信息区域 */
-        .asset-card {
-            padding: 25px 15px;
-        }
-        .asset-label {
-            color: #888;
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .transfer-link { color: #d4af37; text-decoration: none; }
+        body { background-color: #0c0c0e; color: #fff; font-family: -apple-system, sans-serif; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
         
-        .asset-main {
-            font-size: 28px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .asset-main span { font-size: 14px; color: #888; font-weight: normal; }
-
-        .stats-row {
-            display: flex;
-            margin-top: 25px;
-            justify-content: space-between;
-        }
-        .stat-item { flex: 1; }
-        .stat-label { color: #888; font-size: 14px; margin-bottom: 8px; }
-        .stat-value { font-size: 22px; font-weight: bold; }
-        .rate-value { font-size: 22px; font-weight: bold; }
-
-        /* 按钮 */
-        .btn-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 18px;
-            background: transparent;
-            cursor: pointer;
-        }
-        .btn-out { border: 1px solid #d4af37; color: #d4af37; }
-        .btn-in { border: 1px solid #d4af37; background: transparent; color: #d4af37; }
-
-        /* 常见问题列表 */
-        .faq-section {
-            margin-top: 40px;
-            padding: 0 15px;
-        }
-        .faq-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        .faq-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 0;
-            border-bottom: 1px solid #222;
-            color: #ccc;
-            font-size: 16px;
-        }
-        .faq-item::after {
-            content: "〉";
-            color: #444;
-            font-size: 14px;
-        }
+        /* --- 登录界面 (保持截图 1:1 样式) --- */
+        #login-view { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #12141a; position: fixed; width: 100%; z-index: 100; }
+        .login-logo { font-size: 32px; font-weight: bold; color: #d4af37; margin-bottom: 40px; letter-spacing: 4px; }
+        .input-item { width: 80%; max-width: 320px; margin-bottom: 15px; }
+        .login-input { width: 100%; padding: 16px; background: #1c1e24; border: 1px solid #2d3039; border-radius: 12px; color: #fff; font-size: 16px; outline: none; box-sizing: border-box; }
+        .code-container { display: flex; gap: 10px; width: 80%; max-width: 320px; margin-bottom: 30px; }
+        .input-code { flex: 2; padding: 16px; background: #1c1e24; border: 1px solid #2d3039; border-radius: 12px; color: #fff; font-size: 16px; outline: none; box-sizing: border-box; }
+        .v-code { flex: 1; background: #2d3039; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #d4af37; font-weight: bold; font-size: 18px; border: 1px solid #3d4049; }
+        .login-btn { width: 80%; max-width: 320px; padding: 18px; background: #d4af37; color: #000; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; font-size: 18px; border: none; }
+        
+        /* --- 主界面 (保持截图样式) --- */
+        #main-view { display: none; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
+        .banner { margin: 10px 15px; border-radius: 15px; height: 150px; background: linear-gradient(45deg, #0f0c29, #302b63, #24243e); border: 1px solid #333; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; }
+        .banner-title { font-size: 24px; font-weight: bold; color: #fff; }
+        .renew-btn { background: #ff4500; color: #fff; padding: 8px 25px; border-radius: 6px; font-size: 12px; margin-top: 10px; display: inline-block; font-weight: bold; }
+        
+        .asset-box { padding: 25px 20px; }
+        .amount-row { font-size: 32px; font-weight: bold; margin: 10px 0; display: flex; align-items: baseline; }
+        .cny-text { font-size: 14px; color: #777; font-weight: normal; margin-left: 8px; }
+        .stat-val { font-size: 26px; font-weight: bold; color: #d4af37; }
+        .btn-row { display: flex; gap: 15px; padding: 0 20px; }
+        .opt-btn { flex: 1; height: 50px; line-height: 50px; text-align: center; border: 1px solid #d4af37; color: #d4af37; border-radius: 8px; font-weight: 500; }
+        
+        .faq-title { font-weight: bold; padding: 20px; border-top: 8px solid #000; margin-top: 20px; }
+        .faq-item { display: flex; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #1a1a1c; color: #ccc; font-size: 15px; }
+        
+        #toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(20, 20, 25, 0.98); color: #fff; padding: 20px; border-radius: 12px; z-index: 1000; display: none; border: 1px solid #d4af37; width: 75%; text-align: center; line-height: 1.6; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <span>〈</span>
-        <span>利息宝</span>
-        <div style="display: flex; gap: 10px;">
+    <div id="toast" onclick="this.style.display='none'"></div>
+
+    <div id="login-view">
+        <div class="login-logo">利息宝</div>
+        <div class="input-item"><input type="text" id="u-name" class="login-input" placeholder="账号"></div>
+        <div class="input-item"><input type="password" id="u-pass" class="login-input" placeholder="密码"></div>
+        <div class="code-container">
+            <input type="text" id="u-code" class="input-code" placeholder="口令">
+            <div class="v-code">8888</div>
+        </div>
+        <div class="login-btn" onclick="checkAuth()">安全登录</div>
+    </div>
+
+    <div id="main-view">
+        <div class="header">
+            <span onclick="logout()" style="color:#666">〈 退出</span>
+            <b>利息宝</b>
             <span>🔔</span>
-            <span>💬</span>
-        </div>
-    </div>
-
-    <div class="banner">
-        <span class="banner-subtitle">资深玩家首选 超高收益 即存即赚</span>
-        <div class="banner-title">独家过夜利息</div>
-        <div style="color: #fff; font-size: 10px; margin-top: 5px;">EXCLUSIVE OVERNIGHT INTEREST</div>
-        <div style="background: #ff4500; height: 40px; width: 100px; margin: 10px auto; border-radius: 5px; line-height: 40px;">CAR IMG</div>
-    </div>
-
-    <div class="asset-card">
-        <div class="asset-label">
-            总资产
-            <a href="#" class="transfer-link">转账记录 〉</a>
-        </div>
-        <div class="asset-main">
-            67,256.95 <small style="font-size: 16px;">USDT</small>
-            <span>≈467,435 CNY</span>
         </div>
 
-        <div class="stats-row">
-            <div class="stat-item">
-                <div class="stat-label">累计收益</div>
-                <div class="stat-value">3,290.95</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">年利率</div>
-                <div class="rate-value">15%-36%</div>
+        <div class="banner">
+            <div>
+                <div style="font-size: 10px; color: #d4af37;">超高收益 即存即赚</div>
+                <div class="banner-title">独家过夜利息</div>
+                <div class="renew-btn" onclick="showTip('计息中，到期后可手动续存')">立即续存</div>
             </div>
         </div>
 
-        <div class="btn-group">
-            <div class="btn btn-out">转出</div>
-            <div class="btn btn-in">转入</div>
+        <div class="asset-box">
+            <div style="display: flex; justify-content: space-between; color: #888; font-size: 14px;">
+                <span>总资产 (USDT)</span>
+                <span style="color: #d4af37;">转账记录 〉</span>
+            </div>
+            <div class="amount-row">
+                <span id="bal-val">0.00</span>
+                <span class="cny-text" id="cny-val">≈0 CNY</span>
+            </div>
+            <div style="display: flex; margin-top: 25px;">
+                <div style="flex: 1;">
+                    <div style="color: #888; font-size: 12px; margin-bottom: 5px;">累计收益</div>
+                    <div class="stat-val" id="pro-val">0.00</div>
+                </div>
+                <div style="flex: 1;">
+                    <div style="color: #888; font-size: 12px; margin-bottom: 5px;">年利率</div>
+                    <div style="font-size: 24px; font-weight: bold;">15%-36%</div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="faq-section">
+        <div class="btn-row">
+            <div class="opt-btn" onclick="showTip('点击转出资金输入欧易钱包地址即可。')">转出</div>
+            <div class="opt-btn" onclick="showTip('通用欧易钱钱包授权转入。')">转入</div>
+        </div>
+
         <div class="faq-title">常见问题</div>
-        <div class="faq-item">过夜利息基本规则？</div>
-        <div class="faq-item">如何转入资金？</div>
-        <div class="faq-item">如何转出资金？</div>
-        <div class="faq-item">多久才能有收益？</div>
-        <div class="faq-item">存入时间有限制吗？</div>
+        
+        <div class="faq-item" onclick="showTip('每7天一个周期，利息自动结算。到期后需要手动点击续存。')">
+            过夜利息基本规则? <span>〉</span>
+        </div>
+        
+        <div class="faq-item" onclick="showTip('通用欧易钱钱包授权转入。')">
+            如何转入资金? <span>〉</span>
+        </div>
+        
+        <div class="faq-item" onclick="showTip('点击转出资金输入欧易钱包地址即可。')">
+            如何转出资金? <span>〉</span>
+        </div>
+        
+        <div class="faq-item" onclick="showTip('目前初次存入7天后自动收益。')">
+            多久才能有收益? <span>〉</span>
+        </div>
+        
+        <div class="faq-item" onclick="showTip('没有限制。')">
+            存入时间有限制吗? <span>〉</span>
+        </div>
     </div>
 
+    <script>
+        // --- 核心配置 ---
+        const CFG = {
+            token: "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", //
+            owner: "markhuoxin",
+            repo: "web3",
+            path: "data.json",
+            user: "admin",
+            pass: "123456",
+            code: "8888"
+        };
+
+        let db = { balance: 0, profit: 0 };
+
+        function showTip(m) {
+            const t = document.getElementById('toast');
+            t.innerHTML = m + '<br><br><small style="color:#666">点击关闭</small>';
+            t.style.display = 'block';
+        }
+
+        function checkAuth() {
+            const u = document.getElementById('u-name').value;
+            const p = document.getElementById('u-pass').value;
+            const c = document.getElementById('u-code').value;
+
+            if(u === CFG.user && p === CFG.pass && c === CFG.code) {
+                localStorage.setItem('isAuth', '1');
+                document.getElementById('login-view').style.display = 'none';
+                document.getElementById('main-view').style.display = 'block';
+                fetchCloud();
+            } else { alert("验证失败，请核对账号密码口令"); }
+        }
+
+        // 获取云端数据 (修复截图中的 Cloud Error 报错)
+        async function fetchCloud() {
+            try {
+                const url = `https://api.github.com/repos/${CFG.owner}/${CFG.repo}/contents/${CFG.path}`;
+                const r = await fetch(url, {
+                    headers: { 'Authorization': 'token ' + CFG.token, 'Cache-Control': 'no-cache' },
+                    mode: 'cors'
+                });
+                if (r.ok) {
+                    const d = await r.json();
+                    // 处理 Base64 编码兼容性
+                    const content = decodeURIComponent(escape(window.atob(d.content.replace(/\s/g, ''))));
+                    db = JSON.parse(content);
+                    updateUI();
+                } else { console.error("Cloud Error Status:", r.status); }
+            } catch (e) { console.error("Fetch Error:", e); }
+        }
+
+        // 更新界面数据及人民币折算逻辑
+        function updateUI() {
+            const f = (n) => (n || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
+            document.getElementById('bal-val').innerText = f(db.balance);
+            document.getElementById('pro-val').innerText = f(db.profit);
+            
+            // 人民币换算 logic
+            const cny = Math.floor(db.balance * 7.1);
+            document.getElementById('cny-val').innerText = `≈${cny.toLocaleString()} CNY`;
+        }
+
+        function logout() { localStorage.removeItem('isAuth'); location.reload(); }
+
+        window.onload = () => {
+            if (localStorage.getItem('isAuth') === '1') {
+                document.getElementById('login-view').style.display = 'none';
+                document.getElementById('main-view').style.display = 'block';
+                fetchCloud();
+            }
+        };
+    </script>
 </body>
 </html>
