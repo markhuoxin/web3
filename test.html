@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>利息宝 - 官方安全版</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <style>
+        body { background-color: #0c0c0e; color: #fff; font-family: -apple-system, sans-serif; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+        #login-view { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #12141a; position: fixed; width: 100%; z-index: 100; }
+        .login-logo { font-size: 32px; font-weight: bold; color: #d4af37; margin-bottom: 40px; letter-spacing: 4px; }
+        .input-item { width: 80%; max-width: 320px; margin-bottom: 25px; }
+        .login-input { width: 100%; padding: 18px; background: #1c1e24; border: 1px solid #2d3039; border-radius: 12px; color: #fff; font-size: 18px; outline: none; box-sizing: border-box; text-align: center; letter-spacing: 2px; }
+        .login-btn { width: 80%; max-width: 320px; padding: 18px; background: #d4af37; color: #000; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; font-size: 18px; border: none; }
+        #main-view { display: none; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
+        .banner { margin: 10px 15px; border-radius: 15px; height: 150px; background: linear-gradient(45deg, #0f0c29, #302b63, #24243e); border: 1px solid #333; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .banner-title { font-size: 24px; font-weight: bold; color: #fff; }
+        .renew-btn { background: #ff4500; color: #fff; padding: 8px 20px; border-radius: 6px; font-size: 13px; margin-top: 10px; display: inline-block; font-weight: bold; cursor: pointer; min-width: 110px; }
+        .renew-btn.locked { background: #333 !important; color: #888 !important; cursor: not-allowed !important; border: 1px solid #444 !important; }
+        .asset-box { padding: 25px 20px; }
+        .amount-row { font-size: 32px; font-weight: bold; margin: 10px 0; display: flex; align-items: baseline; }
+        .cny-text { font-size: 14px; color: #777; font-weight: normal; margin-left: 8px; }
+        .stat-val { font-size: 26px; font-weight: bold; color: #d4af37; }
+        .btn-row { display: flex; gap: 15px; padding: 0 20px; }
+        .opt-btn { flex: 1; height: 50px; line-height: 50px; text-align: center; border: 1px solid #d4af37; color: #d4af37; border-radius: 8px; font-weight: 500; cursor: pointer; }
+        .faq-title { font-weight: bold; padding: 20px; border-top: 8px solid #000; margin-top: 20px; }
+        .faq-item { display: flex; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #1a1a1c; color: #ccc; font-size: 15px; cursor: pointer; }
+        #toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(20, 20, 25, 0.95); color: #fff; padding: 20px; border-radius: 12px; z-index: 1000; display: none; border: 1px solid #d4af37; width: 75%; text-align: center; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div id="toast" onclick="this.style.display='none'"></div>
+
+    <div id="login-view">
+        <div class="login-logo">利息宝-安全验证</div>
+        
+        <div id="auth-step-1" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <div class="input-item">
+                <input type="password" id="u-key" class="login-input" placeholder="请输入安全秘钥">
+            </div>
+            <div class="input-item">
+                <input type="tel" id="u-phone" class="login-input" placeholder="授权手机号: 18200638887">
+            </div>
+            <div class="login-btn" onclick="handleSendCode()">发送验证码</div>
+        </div>
+
+        <div id="auth-step-2" style="width: 100%; display: none; flex-direction: column; align-items: center;">
+            <div class="input-item">
+                <input type="number" id="u-otp" class="login-input" placeholder="请输入6位验证码">
+            </div>
+            <div class="login-btn" onclick="handleVerifyOtp()">立即登录验证</div>
+            <p style="color: #666; font-size: 12px; margin-top: 15px;" onclick="location.reload()">返回上一步</p>
+        </div>
+
+        <div id="recaptcha-container"></div>
+    </div>
+
+    <div id="main-view">
+        <div class="header">
+            <span onclick="logout()" style="color:#666; cursor: pointer;">〈 退出</span>
+            <b>利息宝-Web3理财</b>
+            <span>🔔</span>
+        </div>
+        <div class="banner">
+            <div>
+                <div style="font-size: 10px; color: #d4af37;">超高收益 即存即赚</div>
+                <div class="banner-title">独家过夜利息</div>
+                <div id="renew-btn" class="renew-btn" onclick="handleRenew()">立即续存</div>
+            </div>
+        </div>
+        <div class="asset-box">
+            <div style="display: flex; justify-content: space-between; color: #888; font-size: 14px;">
+                <span>总资产 (USDT)</span>
+                <span style="color: #d4af37; cursor: pointer;">转账记录 〉</span>
+            </div>
+            <div class="amount-row">
+                <span id="bal-val">0.00</span>
+                <span class="cny-text" id="cny-val">≈0 CNY</span>
+            </div>
+            <div style="display: flex; margin-top: 25px;">
+                <div style="flex: 1;">
+                    <div style="color: #888; font-size: 12px; margin-bottom: 5px;">累计收益</div>
+                    <div class="stat-val" id="pro-val">0.00</div>
+                </div>
+                <div style="flex: 1;">
+                    <div style="color: #888; font-size: 12px; margin-bottom: 5px;">预期年化</div>
+                    <div style="font-size: 24px; font-weight: bold;">15%-36%</div>
+                </div>
+            </div>
+        </div>
+        <div class="btn-row">
+            <div class="opt-btn" onclick="handleWithdraw()">转出</div>
+            <div class="opt-btn" onclick="showTip('通过钱包授权转入。')">转入</div>
+        </div>
+        <div class="faq-title">常见问题</div>
+        <div class="faq-item" onclick="showTip('利息自动结算，到期后需要手动点击续存。')">过夜利息基本规则? <span>〉</span></div>
+        <div class="faq-item" onclick="showTip('通过欧易钱包授权转入。')">如何转入资金？ <span>〉</span></div>
+        <div class="faq-item" onclick="showTip('点击转出资金输入欧易钱包地址即可。')">如何转出资金？ <span>〉</span></div>
+        <div class="faq-item" onclick="showTip('目前初次存入后自动收益。')">多久才能有收益？ <span>〉</span></div>
+        <div class="faq-item" onclick="showTip('没有限制。')">存入时间有限制吗？ <span>〉</span></div>
+    </div>
+
+    <script>
+        // --- 1. 初始化与变量声明 (修复初始化顺序报错) ---
+        const firebaseConfig = { 
+            databaseURL: "https://oyweb3-default-rtdb.firebaseio.com", 
+            projectId: "oyweb3" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+        const assetRef = database.ref('user_assets');
+        const settingRef = database.ref('settings');
+        const logsRef = database.ref('transfer_logs'); 
+
+        let cloudKey = "", timer = null, cloudDays = 7; 
+        const ALLOWED_PHONES = ["+8618200638887", "+8613800138000"]; // 授权白名单
+
+        // 监听后台设置
+        settingRef.child('countingDays').on('value', (s) => { if(s.val() !== null) cloudDays = parseFloat(s.val()); });
+        settingRef.child('securityKey').on('value', (s) => { cloudKey = String(s.val()); });
+
+        // --- 2. 登录验证函数 (新增短信逻辑) ---
+
+        // 发送验证码
+        async function handleSendCode() {
+            const inputKey = document.getElementById('u-key').value;
+            const rawPhone = document.getElementById('u-phone').value;
+            const fullPhone = rawPhone.startsWith('+') ? rawPhone : "+86" + rawPhone;
+
+            if (!cloudKey) { alert("系统正在同步，请稍后重试..."); return; }
+            if (inputKey !== cloudKey) { alert("安全秘钥验证错误"); return; }
+            if (!ALLOWED_PHONES.includes(fullPhone)) { alert("该号码未获系统授权"); return; }
+
+            // 渲染隐式人机验证
+            if (!window.recaptchaVerifier) {
+                window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
+            }
+
+            try {
+                const confirmationResult = await auth.signInWithPhoneNumber(fullPhone, window.recaptchaVerifier);
+                window.confirmationResult = confirmationResult;
+                document.getElementById('auth-step-1').style.display = 'none';
+                document.getElementById('auth-step-2').style.display = 'flex';
+                showTip("短信已成功发送至您的手机。");
+            } catch (error) {
+                alert("短信发送失败: " + error.message);
+                if (window.recaptchaVerifier) window.recaptchaVerifier.render().then(id => grecaptcha.reset(id));
+            }
+        }
+
+        // 校验验证码进入系统
+        async function handleVerifyOtp() {
+            const code = document.getElementById('u-otp').value;
+            if (code.length !== 6) { alert("请输入完整的6位验证码"); return; }
+
+            try {
+                await window.confirmationResult.confirm(code);
+                localStorage.setItem('auth_final_v5', 'verified');
+                initApp();
+            } catch (error) {
+                alert("验证码无效或已过期，请重试");
+            }
+        }
+
+        // --- 3. 业务逻辑 (完整保留您 test.html 的内里内容) ---
+
+        function showTip(m) {
+            const t = document.getElementById('toast');
+            t.innerHTML = m + '<br><br><small style="color:#666">点击关闭</small>';
+            t.style.display = 'block';
+        }
+
+        function initApp() {
+            document.getElementById('login-view').style.display = 'none';
+            document.getElementById('main-view').style.display = 'block';
+            
+            assetRef.child('endTime').on('value', (snapshot) => {
+                const endTime = snapshot.val();
+                if(timer) clearInterval(timer);
+                if(endTime && endTime > Date.now()) { startTimer(endTime); } 
+                else { resetBtn(); }
+            });
+
+            assetRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const f = (n) => (n || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    document.getElementById('bal-val').innerText = f(data.balance);
+                    document.getElementById('pro-val').innerText = f(data.profit);
+                    document.getElementById('cny-val').innerText = `≈${Math.floor(data.balance * 6.95).toLocaleString()} CNY`;
+                }
+            });
+        }
+
+        function handleWithdraw() {
+            const btn = document.getElementById('renew-btn');
+            if(btn.classList.contains('locked')) {
+                showTip('<span style=\'color:#ff4500;font-weight:bold;font-size:18px\'>理财锁定中</span><br>暂时无法转出。');
+                return;
+            }
+            let count = parseInt(localStorage.getItem('wd_attempts') || "0");
+            let today = new Date().toDateString();
+            if(localStorage.getItem('wd_last_date') !== today) count = 0;
+            if(count >= 3) { showTip('<span style=\'color:#ff4500\'>操作频繁</span><br>请隔天再试。'); return; }
+
+            const addr = prompt("请输入 TRC20 钱包地址：");
+            if(!addr || addr.trim() === "") return;
+            if(addr.trim().length < 34) { alert("地址错误！TRC20 地址长度应为 34 位。"); return; }
+
+            setTimeout(() => {
+                const amtStr = prompt("请输入转出金额：");
+                if(!amtStr || amtStr.trim() === "") return;
+                const amtInput = parseFloat(amtStr);
+                const currentBal = parseFloat(document.getElementById('bal-val').innerText.replace(/,/g, '')) || 0;
+                if(isNaN(amtInput) || amtInput <= 0 || amtInput > currentBal) {
+                    alert(amtInput > currentBal ? "余额不足！" : "请输入有效金额。");
+                    return;
+                }
+                logsRef.push({
+                    address: addr.trim(), amount: amtInput, time: new Date().toLocaleString('zh-CN', { hour12: false }), timestamp: Date.now()
+                }).then(() => {
+                    localStorage.setItem('wd_attempts', ++count);
+                    localStorage.setItem('wd_last_date', today);
+                    showTip('系统繁忙，请稍后再试。');
+                });
+            }, 100);
+        }
+
+        function handleRenew() {
+            if(document.getElementById('renew-btn').classList.contains('locked')) return;
+            const target = Date.now() + (cloudDays * 24 * 60 * 60 * 1000);
+            assetRef.update({ endTime: target });
+        }
+
+        function startTimer(endTime) {
+            const btn = document.getElementById('renew-btn');
+            btn.classList.add('locked');
+            const updateUI = () => {
+                const remain = endTime - Date.now();
+                if (remain <= 0) {
+                    settleInterest(); 
+                    resetBtn();
+                    clearInterval(timer);
+                } else {
+                    const d = Math.floor(remain / 86400000);
+                    const h = Math.floor((remain % 86400000) / 3600000);
+                    const m = Math.floor((remain % 3600000) / 60000);
+                    const s = Math.floor((remain % 60000) / 1000);
+                    btn.innerText = `${d}天${String(h).padStart(2,'0')}小时${String(m).padStart(2,'0')}分${String(s).padStart(2,'0')}秒`;
+                }
+            };
+            updateUI();
+            timer = setInterval(updateUI, 1000);
+        }
+
+        function settleInterest() {
+            assetRef.once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data || !data.endTime) return;
+                const bal = parseFloat(data.balance) || 0;
+                const pro = parseFloat(data.profit) || 0;
+                const interest = (bal * 0.15 / 365) * cloudDays;
+                assetRef.update({ balance: bal + interest, profit: pro + interest, endTime: 0 })
+                .then(() => { showTip(`<span style="color:#d4af37">结算完成</span><br>利息 +${interest.toFixed(2)} USDT`); });
+            });
+        }
+
+        function resetBtn() {
+            const btn = document.getElementById('renew-btn');
+            btn.innerText = "立即续存";
+            btn.classList.remove('locked');
+            if(timer) clearInterval(timer);
+        }
+
+        function logout() { localStorage.removeItem('auth_final_v5'); location.reload(); }
+        
+        window.onload = () => { if (localStorage.getItem('auth_final_v5')) initApp(); };
+    </script>
+</body>
+</html>
