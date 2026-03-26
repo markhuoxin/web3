@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精确时间戳生成器</title>
+    <style>
+        body { background: #0c0c0e; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 30px 10px; }
+        .card { background: #1c1e24; padding: 25px; border-radius: 16px; border: 1px solid #d4af37; width: 100%; max-width: 400px; box-sizing: border-box; }
+        h3 { color: #d4af37; text-align: center; margin-top: 0; }
+        .input-group { display: flex; align-items: center; margin-bottom: 15px; background: #000; border-radius: 8px; padding: 5px 15px; border: 1px solid #333; }
+        .input-group label { width: 60px; color: #888; font-size: 14px; }
+        input { flex: 1; padding: 10px; background: transparent; border: none; color: #fff; text-align: right; font-size: 18px; outline: none; }
+        button { width: 100%; background: #d4af37; color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        #result-box { margin-top: 25px; padding: 15px; background: #2d3039; border-radius: 8px; display: none; text-align: center; border: 1px dashed #d4af37; }
+        #result { color: #fff; font-size: 22px; font-weight: bold; letter-spacing: 1px; user-select: all; cursor: pointer; word-break: break-all; }
+        .copy-tip { color: #d4af37; font-size: 12px; margin-top: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h3>精确倒计时设置</h3>
+    
+    <div class="input-group">
+        <label>天数</label>
+        <input type="number" id="d" value="0">
+    </div>
+    <div class="input-group">
+        <label>小时</label>
+        <input type="number" id="h" value="1">
+    </div>
+    <div class="input-group">
+        <label>分钟</label>
+        <input type="number" id="m" value="0">
+    </div>
+    <div class="input-group">
+        <label>秒钟</label>
+        <input type="number" id="s" value="0">
+    </div>
+
+    <button onclick="calculate()">生成 13 位 endTime</button>
+
+    <div id="result-box">
+        <div id="result" onclick="copyNum()"></div>
+        <div class="copy-tip" id="tip">点击上方数字复制</div>
+    </div>
+</div>
+
+<script>
+    function calculate() {
+        const d = parseFloat(document.getElementById('d').value) || 0;
+        const h = parseFloat(document.getElementById('h').value) || 0;
+        const m = parseFloat(document.getElementById('m').value) || 0;
+        const s = parseFloat(document.getElementById('s').value) || 0;
+
+        // 换算成毫秒：1天=86400000ms, 1小时=3600000ms, 1分=60000ms, 1秒=1000ms
+        const totalMs = (d * 86400000) + (h * 3600000) + (m * 60000) + (s * 1000);
+
+        if (totalMs <= 0) {
+            alert("请输入有效的时间");
+            return;
+        }
+
+        // 计算目标时间戳
+        const futureTime = Date.now() + totalMs;
+
+        document.getElementById('result').innerText = futureTime;
+        document.getElementById('result-box').style.display = 'block';
+        document.getElementById('tip').innerText = "点击上方数字复制";
+        document.getElementById('tip').style.color = "#d4af37";
+    }
+
+    function copyNum() {
+        const num = document.getElementById('result').innerText;
+        navigator.clipboard.writeText(num).then(() => {
+            document.getElementById('tip').innerText = "✅ 已复制";
+            document.getElementById('tip').style.color = "#4CAF50";
+        }).catch(err => {
+            alert("复制失败，请手动长按数字复制");
+        });
+    }
+</script>
+
+</body>
+</html>

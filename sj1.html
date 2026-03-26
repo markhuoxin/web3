@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日期转时间戳工具</title>
+    <style>
+        body { background: #0c0c0e; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; }
+        .card { background: #12141a; padding: 30px; border-radius: 15px; border: 1px solid #d4af37; width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h3 { text-align: center; color: #d4af37; margin-bottom: 25px; letter-spacing: 2px; }
+        .input-group { margin-bottom: 20px; background: #1c1e24; padding: 12px; border-radius: 8px; }
+        label { display: block; color: #888; font-size: 12px; margin-bottom: 8px; }
+        /* 定制日历选择器样式 */
+        input[type="datetime-local"] { 
+            width: 100%; background: transparent; border: none; color: #fff; 
+            font-size: 16px; outline: none; color-scheme: dark; 
+        }
+        button { width: 100%; padding: 15px; background: #d4af37; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        button:active { transform: scale(0.98); }
+        #result-box { margin-top: 20px; padding: 15px; background: #000; border-radius: 10px; text-align: center; border: 1px dashed #444; }
+        .res-label { font-size: 12px; color: #666; margin-bottom: 8px; }
+        #result { color: #d4af37; font-size: 22px; font-weight: bold; word-break: break-all; cursor: pointer; min-height: 30px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h3>结束日期设置</h3>
+        
+        <div class="input-group">
+            <label>选择倒计时结束的具体时间</label>
+            <input type="datetime-local" id="target-date">
+        </div>
+        
+        <button onclick="generateStamp()">生成 13 位 endTime</button>
+
+        <div id="result-box">
+            <div class="res-label">生成的 13 位时间戳 (点击复制)</div>
+            <div id="result" onclick="copyNum()">等待生成...</div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化：默认显示当前时间往后推 7 天
+        window.onload = () => {
+            const now = new Date();
+            now.setDate(now.getDate() + 7);
+            // 格式化为 datetime-local 需要的格式: YYYY-MM-DDThh:mm
+            const offset = now.getTimezoneOffset() * 60000;
+            const localISOTime = new Date(now - offset).toISOString().slice(0, 16);
+            document.getElementById('target-date').value = localISOTime;
+        };
+
+        function generateStamp() {
+            const dateVal = document.getElementById('target-date').value;
+            if (!dateVal) {
+                alert("请先选择日期！");
+                return;
+            }
+
+            // 将选中的日期转换为 13 位时间戳
+            const endTime = new Date(dateVal).getTime();
+            
+            if (endTime <= Date.now()) {
+                alert("警告：选中的时间已过，倒计时将直接显示结束。");
+            }
+
+            document.getElementById('result').innerText = endTime;
+        }
+
+        function copyNum() {
+            const num = document.getElementById('result').innerText;
+            if (num === "等待生成...") return;
+            
+            navigator.clipboard.writeText(num).then(() => {
+                alert("复制成功：" + num);
+            }).catch(() => {
+                const input = document.createElement('input');
+                input.value = num;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                alert("已复制");
+            });
+        }
+    </script>
+</body>
+</html>
