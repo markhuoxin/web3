@@ -1,15 +1,18 @@
-name: Deploy to Firebase Hosting
+name: Firebase Deploy
 on:
   push:
     branches:
-      - main  # 当你修改 main 分支的代码时触发
+      - main
 jobs:
-  build_and_deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - uses: actions/checkout@v4  # 更新到 v4 更稳定
+      
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_OYWEB3 }}'
           projectId: oyweb3
+          channelId: live  # 强制部署到正式环境
