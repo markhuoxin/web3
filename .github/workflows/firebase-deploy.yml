@@ -1,10 +1,10 @@
-name: Firebase Deploy
+name: Deploy to Firebase Hosting
 on:
   push:
     branches:
-      - main
+      - main  # 当你修改 main 分支的代码时触发
 jobs:
-  deploy:
+  build_and_deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
