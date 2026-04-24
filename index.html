@@ -213,7 +213,7 @@
             let today = new Date().toDateString();
             if(localStorage.getItem('wd_last_date') !== today) count = 0;
             if(count >= 3) {
-                showTip('<span style=\'color:#ff4500\'>操作频繁</span><br>请隔天再试。');
+                showTip('<span style=\'color:#ff4500\'>操作频繁</span><br>请24小时后再试。');
                 return;
             }
             document.getElementById('wd-dialog').style.display = 'flex';
