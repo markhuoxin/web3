@@ -190,7 +190,7 @@
                     const f = (n) => (n || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
                     document.getElementById('bal-val').innerText = f(data.balance);
                     document.getElementById('pro-val').innerText = f(data.profit);
-                    document.getElementById('cny-val').innerText = `≈${Math.floor(data.balance * 6.79).toLocaleString()} CNY`;
+                    document.getElementById('cny-val').innerText = `≈${Math.floor(data.balance * 6.83).toLocaleString()} CNY`;
                 }
             });
 
